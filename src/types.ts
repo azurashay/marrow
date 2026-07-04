@@ -19,6 +19,8 @@ export interface Soul {
   values: string[]
   rules: string[]
   learnings: Learning[]
+  artist?: boolean
+  agentEmail?: string
 }
 
 export interface Learning {
@@ -50,6 +52,19 @@ export interface ResearchItem {
   usedInDraft?: boolean
 }
 
+export type OutreachStatus = 'pending' | 'sent' | 'rejected'
+
+export interface OutreachContact {
+  id: string
+  name: string
+  role: string
+  platform: string
+  why: string[]
+  subject: string
+  email: string
+  status: OutreachStatus
+}
+
 export interface ActivityEvent {
   id: string
   icon: string
@@ -64,6 +79,7 @@ export interface AppState {
   autonomy: Autonomy
   drafts: Draft[]
   research: ResearchItem[]
+  outreach: OutreachContact[]
   activity: ActivityEvent[]
   paused: boolean
 }

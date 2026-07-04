@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { ChannelId, GoalId } from '../types'
-import { GOALS, CHANNEL_META, RESEARCH_STEPS, buildSoul, generateDrafts, generateResearch } from '../engine'
+import { GOALS, CHANNEL_META, RESEARCH_STEPS, buildSoul, generateDrafts, generateOutreach, generateResearch } from '../engine'
 import { useStore } from '../store'
 import { ChannelGlyph } from '../components/ui'
 
@@ -13,6 +13,17 @@ export function Onboarding() {
   const [goal, setGoal] = useState<GoalId | null>(null)
   const [channels, setChannels] = useState<ChannelId[]>(['linkedin', 'instagram'])
   const [buildIdx, setBuildIdx] = useState(-1)
+  const [artist, setArtist] = useState(false)
+
+  const useAletheia = () => {
+    setArtist(true)
+    setName('Aletheia')
+    setSite('aletheia_codex_v2')
+    setAudience('אנשים שעוד שואלים שאלות')
+    setGoal('community')
+    setChannels(['instagram', 'tiktok', 'youtube'])
+    setStep(2)
+  }
 
   const toggleChannel = (id: ChannelId) =>
     setChannels((c) => (c.includes(id) ? c.filter((x) => x !== id) : [...c, id]))
@@ -27,13 +38,14 @@ export function Onboarding() {
     })
     timers.push(
       setTimeout(() => {
-        const soul = buildSoul({ businessName: name, website: site, goal: goal!, audience })
+        const soul = buildSoul({ businessName: name, website: site, goal: goal!, audience, artist })
         dispatch({
           type: 'COMPLETE_ONBOARDING',
           soul,
           connected: channels,
           drafts: generateDrafts(soul, channels, 6),
           research: generateResearch(soul),
+          outreach: generateOutreach(soul),
         })
       }, 950 * RESEARCH_STEPS.length + 700),
     )
@@ -69,6 +81,22 @@ export function Onboarding() {
               <label htmlFor="f-aud">מי הלקוחות שלך, במשפט?</label>
               <input id="f-aud" value={audience} onChange={(e) => setAudience(e.target.value)} placeholder="למשל: בעלי עסקים קטנים שרוצים להתבלט" />
             </div>
+            <button
+              onClick={useAletheia}
+              style={{
+                width: '100%',
+                marginTop: '0.4rem',
+                padding: '0.7rem 1rem',
+                background: 'var(--card-2)',
+                border: '1.5px dashed var(--rule)',
+                borderRadius: 'var(--r-m)',
+                fontSize: '0.88rem',
+                color: 'var(--ink-2)',
+                transition: 'border-color 0.2s, background 0.2s',
+              }}
+            >
+              🎛️ או: טען את <b>Aletheia</b> — האמן מהקודקס (דמו מלא: מוזיקה, פודקאסט ו-Outreach)
+            </button>
           </div>
         )}
 

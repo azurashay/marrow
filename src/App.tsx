@@ -5,16 +5,18 @@ import { Onboarding } from './views/Onboarding'
 import { Dashboard } from './views/Dashboard'
 import { Studio } from './views/Studio'
 import { Research } from './views/Research'
+import { Outreach } from './views/Outreach'
 import { Soul } from './views/Soul'
 import { Settings } from './views/Settings'
 
-type View = 'dashboard' | 'approvals' | 'studio' | 'research' | 'soul' | 'settings'
+type View = 'dashboard' | 'approvals' | 'studio' | 'research' | 'outreach' | 'soul' | 'settings'
 
 const NAV: { id: View; label: string; glyph: string }[] = [
   { id: 'dashboard', label: 'לוח הבקרה', glyph: '◉' },
   { id: 'approvals', label: 'תור האישורים', glyph: '✓' },
   { id: 'studio', label: 'אולפן התוכן', glyph: '✎' },
   { id: 'research', label: 'מחקר', glyph: '☌' },
+  { id: 'outreach', label: 'קשרים', glyph: '✉' },
   { id: 'soul', label: 'הנשמה', glyph: '✦' },
   { id: 'settings', label: 'שליטה', glyph: '◈' },
 ]
@@ -26,6 +28,7 @@ function Shell() {
   if (!state.onboarded) return <Onboarding />
 
   const pendingCount = state.drafts.filter((d) => d.status === 'pending').length
+  const outreachCount = state.outreach.filter((c) => c.status === 'pending').length
 
   return (
     <div className="shell">
@@ -42,6 +45,7 @@ function Shell() {
             <span className="glyph">{n.glyph}</span>
             {n.label}
             {n.id === 'approvals' && pendingCount > 0 && <span className="badge">{pendingCount}</span>}
+            {n.id === 'outreach' && outreachCount > 0 && <span className="badge">{outreachCount}</span>}
           </button>
         ))}
         <div className="foot">
@@ -56,6 +60,7 @@ function Shell() {
         {view === 'approvals' && <Studio key="approvals" onlyPending />}
         {view === 'studio' && <Studio key="studio" />}
         {view === 'research' && <Research />}
+        {view === 'outreach' && <Outreach />}
         {view === 'soul' && <Soul />}
         {view === 'settings' && <Settings />}
       </main>

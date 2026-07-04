@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useMemo, useReducer, type ReactNode } from 'react'
-import type { ActivityEvent, AppState, Autonomy, ChannelId, Draft, ResearchItem, Soul } from './types'
+import type { ActivityEvent, AppState, Autonomy, ChannelId, Draft, OutreachContact, ResearchItem, Soul } from './types'
 import { CHANNEL_META, uid } from './engine'
 
-const STORAGE_KEY = 'marrow-state-v1'
+const STORAGE_KEY = 'marrow-state-v2'
 
 const initialState: AppState = {
   onboarded: false,
@@ -15,12 +15,14 @@ const initialState: AppState = {
   autonomy: 'supervised',
   drafts: [],
   research: [],
+  outreach: [],
   activity: [],
   paused: false,
 }
 
 type Action =
-  | { type: 'COMPLETE_ONBOARDING'; soul: Soul; connected: ChannelId[]; drafts: Draft[]; research: ResearchItem[] }
+  | { type: 'COMPLETE_ONBOARDING'; soul: Soul; connected: ChannelId[]; drafts: Draft[]; research: ResearchItem[]; outreach: OutreachContact[] }
+  | { type: 'SET_OUTREACH_STATUS'; id: string; status: OutreachContact['status'] }
   | { type: 'SET_DRAFT_STATUS'; id: string; status: Draft['status'] }
   | { type: 'ADD_DRAFTS'; drafts: Draft[] }
   | { type: 'UPDATE_DRAFT'; id: string; hook: string; body: string }
@@ -46,6 +48,7 @@ function reducer(state: AppState, action: Action): AppState {
         channels: state.channels.map((c) => ({ ...c, connected: action.connected.includes(c.id) })),
         drafts: action.drafts,
         research: action.research,
+        outreach: action.outreach,
         activity: log(
           state.activity,
           '✦',
@@ -74,6 +77,20 @@ function reducer(state: AppState, action: Action): AppState {
         ),
         activity: d
           ? log(state.activity, action.status === 'rejected' ? '×' : '✓', `טיוטה ל-${CHANNEL_META[d.channel].label} ${labels[action.status]}`)
+          : state.activity,
+      }
+    }
+    case 'SET_OUTREACH_STATUS': {
+      const c = state.outreach.find((x) => x.id === action.id)
+      return {
+        ...state,
+        outreach: state.outreach.map((x) => (x.id === action.id ? { ...x, status: action.status } : x)),
+        activity: c
+          ? log(
+              state.activity,
+              action.status === 'sent' ? '✉' : '×',
+              action.status === 'sent' ? `מייל אישי נשלח אל ${c.name}` : `פנייה אל ${c.name} נדחתה`,
+            )
           : state.activity,
       }
     }
